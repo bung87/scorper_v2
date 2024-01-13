@@ -7,6 +7,7 @@ proc handleGet() =
     <input name="say" id="say" value="Hi"><button>Send"""
   reply(html)
 
-let getserver = newHttpServer(handleGet)
-getserver.start(8080)
-joinThreads(getserver.thread)
+when isMainModule:
+  let getserver = newHttpServer(handleGet)
+  getserver.start(8080)
+  joinThreads(getserver.thread)

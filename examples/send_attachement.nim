@@ -29,6 +29,19 @@ proc reply*(body: string, headers: openArray[tuple[key: string, val: string]]) {
     let joinedheaders = $headers.newHttpHeaders()
   reply(Http200, unsafeAddr body, unsafeAddr joinedheaders)
 
+const CRLF* = "\c\L"
+
+proc generateHeaders*(headers: HttpHeaders,
+                       code: HttpCode = Http200,
+                       ver: HttpVersion = HttpVer11
+                     ): seq[string] =
+  # generate meta line and headers
+  # result = $ver & " " & $code & CRLF
+  for key, val in headers:
+    add(result, key & ": " & val)
+
+  # add(result, CRLF)
+
 proc sendAttachment*(filepath: string, asName: string = "") =
   let filename = if asName.len == 0: filepath.extractFilename else: asName
   let encodedFilename = &"filename*=UTF-8''{encodeUrlComponent(filename)}"
@@ -36,12 +49,12 @@ proc sendAttachment*(filepath: string, asName: string = "") =
     let extroHeaders = newHttpHeaders({
       "Content-Disposition": &"""attachment;filename="{filename}";{encodedFilename}"""
     })
-    let joinedheaders = $extroHeaders
+    let joinedheaders = generateHeaders(extroHeaders)
   let info = getFileInfo(filepath)
-  echo replyStart(Http200, info.size, unsafeAddr joinedheaders)
+  discard replyStart(Http200, info.size.int, joinedheaders)
   # sendFile(filepath, extroHeaders)
   writeFile(filepath, info.size)
-  echo replyFinish()
+  discard replyFinish()
 
 when isMainModule:
   proc cb()  =
