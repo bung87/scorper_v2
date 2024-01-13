@@ -1,8 +1,9 @@
 import std/[cgi, strtabs, os, strformat]
 import guildenstern/[dispatcher, httpserver]
 import urlly
-import scorper_v2/posix_send_file
+import scorper_v2/[posix_send_file, accept_parser, accept_mime]
 
+export accept_parser, accept_mime
 export dispatcher, httpserver
 
 proc writeFile(fname: string, size: int) =
@@ -47,3 +48,5 @@ proc sendAttachment*(filepath: string, asName: string = "") =
   # sendFile(filepath, extroHeaders)
   writeFile(filepath, info.size)
   discard replyFinish()
+
+  
